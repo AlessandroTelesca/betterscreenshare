@@ -59,6 +59,7 @@ export function useRoomSession(roomId: string | null) {
   const statsTimerRef = useRef<number | null>(null)
   const modeRef = useRef<RoomMode>('idle')
   const hostIdRef = useRef<string | null>(null)
+  const hostPrefersH264Ref = useRef<boolean>(false)
   const selectedPresetRef = useRef<CapturePresetId>('balanced')
 
   const [state, setState] = useState<SessionState>({
@@ -186,6 +187,28 @@ export function useRoomSession(roomId: string | null) {
       }
     }
 
+    // If broadcaster requested hardware-friendly codec preference, prefer H264.
+    if (selectedPresetRef.current === 'quality') {
+      try {
+        const caps = RTCRtpSender.getCapabilities('video')
+        const h264 = caps?.codecs?.filter((c) => /h264/i.test(String(c.mimeType))) ?? []
+        if (h264.length) {
+          for (const transceiver of connection.getTransceivers()) {
+            try {
+              // Only apply to video transceivers
+              if (transceiver.sender && transceiver.sender.track?.kind === 'video') {
+                transceiver.setCodecPreferences(h264 as any)
+              }
+            } catch (err) {
+              // Non-fatal
+            }
+          }
+        }
+      } catch (err) {
+        // Ignore if not supported
+      }
+    }
+
     const offer = await connection.createOffer()
     await connection.setLocalDescription(offer)
 
@@ -218,6 +241,29 @@ export function useRoomSession(roomId: string | null) {
             statusMessage: 'Connected to the room.',
           }))
         }
+      }
+    }
+
+    // If host announced a preference for H264 (hardware-friendly), try to prefer it.
+    if (hostPrefersH264Ref.current) {
+      try {
+        const caps = RTCRtpSender.getCapabilities('video')
+        const h264 = caps?.codecs?.filter((c) => /h264/i.test(String(c.mimeType))) ?? []
+        if (h264.length) {
+          for (const transceiver of connection.getTransceivers()) {
+            try {
+              if (transceiver.receiver || transceiver.sender) {
+                if (transceiver.kind === 'video') {
+                  transceiver.setCodecPreferences(h264 as any)
+                }
+              }
+            } catch (err) {
+              // ignore
+            }
+          }
+        }
+      } catch (err) {
+        // ignore
       }
     }
 
@@ -277,6 +323,14 @@ export function useRoomSession(roomId: string | null) {
     }
 
     if (message.type === 'host-online') {
+      // Record whether the host prefers an H264 (hardware-friendly) codec.
+      try {
+        const payload = message.payload as any
+        hostPrefersH264Ref.current = Boolean(payload?.preferH264)
+      } catch (err) {
+        hostPrefersH264Ref.current = false
+      }
+
       syncState((current) => ({
         ...current,
         hostId: message.from,
@@ -431,8 +485,9 @@ export function useRoomSession(roomId: string | null) {
 
     const sendHostHeartbeat = () => {
       sendSignal({
-        type: 'host-online',
-        role: 'broadcaster',
+          type: 'host-online',
+          role: 'broadcaster',
+          payload: { preferH264: selectedPresetRef.current === 'quality' },
       })
     }
 
@@ -563,8 +618,9 @@ export function useRoomSession(roomId: string | null) {
       }))
 
       sendSignal({
-        type: 'host-online',
-        role: 'broadcaster',
+          type: 'host-online',
+          role: 'broadcaster',
+          payload: { preferH264: selectedPresetRef.current === 'quality' },
       })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Screen capture failed.'
