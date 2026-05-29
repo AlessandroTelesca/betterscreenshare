@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws'
 
-const port = Number(process.env.SIGNALING_PORT ?? 8787)
+const port = Number(process.env.PORT ?? process.env.SIGNALING_PORT ?? 8787)
 const rooms = new Map()
 
 function getRoom(roomId) {
@@ -80,7 +80,7 @@ server.on('connection', (socket, request) => {
 })
 
 server.on('listening', () => {
-  console.log(`[signaling] WebSocket relay listening on ws://localhost:${port}`)
+  console.log(`[signaling] WebSocket relay listening on port ${port}`)
 })
 
 server.on('error', (error) => {

@@ -7,6 +7,7 @@
     "dev": "node scripts/dev.mjs",
     "dev:client": "vite",
     "signaling": "node scripts/signaling-server.mjs",
+    "start": "node scripts/signaling-server.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

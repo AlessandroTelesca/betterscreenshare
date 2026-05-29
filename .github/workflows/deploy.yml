@@ -35,6 +35,8 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_SIGNALING_URL: ${{ secrets.VITE_SIGNALING_URL }}
         run: npm run build
 
       - name: Upload Pages artifact

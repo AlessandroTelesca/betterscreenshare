@@ -26,13 +26,21 @@ npm run signaling
 
 ## Signaling
 
-Set `VITE_SIGNALING_URL` to a WebSocket endpoint that relays room messages between peers. The frontend stays static on GitHub Pages, but cross-device room matching still needs signaling.
+Set `VITE_SIGNALING_URL` to a public WebSocket endpoint that relays room messages between peers. The frontend stays static on GitHub Pages, but cross-device room matching still needs signaling.
+
+The easiest setup is:
+
+- deploy the relay with the included `scripts/signaling-server.mjs` on Render or similar,
+- set `VITE_SIGNALING_URL` as a GitHub secret used by the Pages workflow,
+- rebuild the site so the deployed frontend points at that relay.
 
 Example:
 
 ```bash
 VITE_SIGNALING_URL=wss://your-signaling.example/ws
 ```
+
+If you deploy the relay on Render, set the start command to `npm start`.
 
 ## GitHub Pages
 

@@ -28,9 +28,17 @@ export type SignalingTransport = {
 
 export type SignalingHandler = (message: SignalMessage) => void
 
-const websocketUrl = (import.meta.env.VITE_SIGNALING_URL as string | undefined) ?? (
-  import.meta.env.DEV ? 'ws://localhost:8787' : undefined
-)
+function getDefaultDevWebsocketUrl(): string | undefined {
+  if (!import.meta.env.DEV) {
+    return undefined
+  }
+
+  const hostname = window.location.hostname || 'localhost'
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${hostname}:8787`
+}
+
+const websocketUrl = (import.meta.env.VITE_SIGNALING_URL as string | undefined) ?? getDefaultDevWebsocketUrl()
 
 export function createSignalingTransport(
   roomId: string,
