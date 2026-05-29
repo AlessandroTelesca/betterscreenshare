@@ -419,7 +419,7 @@ export function useRoomSession(roomId: string | null) {
       transportKind: transport.kind,
       statusMessage:
         transport.kind === 'broadcast-channel'
-          ? 'Using local broadcast signaling for this device.'
+          ? 'Using local broadcast signaling for same-browser tabs only. Set VITE_SIGNALING_URL for other browsers or devices.'
           : 'Connecting through the signaling service...',
     }))
 
