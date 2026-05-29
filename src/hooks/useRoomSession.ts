@@ -253,7 +253,8 @@ export function useRoomSession(roomId: string | null) {
           for (const transceiver of connection.getTransceivers()) {
             try {
               if (transceiver.receiver || transceiver.sender) {
-                if (transceiver.kind === 'video') {
+                const kind = transceiver.sender?.track?.kind ?? transceiver.receiver?.track?.kind
+                if (kind === 'video') {
                   transceiver.setCodecPreferences(h264 as any)
                 }
               }
