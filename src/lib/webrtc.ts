@@ -53,7 +53,7 @@ export function buildDisplayMediaOptions(preset: CapturePreset): DisplayMediaStr
     },
     audio: false,
     surfaceSwitching: 'include',
-    preferCurrentTab: true,
+    preferCurrentTab: false,
     monitorTypeSurfaces: 'include',
   } as DisplayMediaStreamOptions
 }

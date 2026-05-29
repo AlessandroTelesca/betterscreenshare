@@ -108,7 +108,7 @@ function App() {
           className="share-button"
           onClick={() => void startBroadcaster(selectedDecoder)}
         >
-          Start screen share
+          Choose window or app to share
         </button>
       </footer>
     </main>
