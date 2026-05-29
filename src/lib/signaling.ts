@@ -28,7 +28,9 @@ export type SignalingTransport = {
 
 export type SignalingHandler = (message: SignalMessage) => void
 
-const websocketUrl = import.meta.env.VITE_SIGNALING_URL as string | undefined
+const websocketUrl = (import.meta.env.VITE_SIGNALING_URL as string | undefined) ?? (
+  import.meta.env.DEV ? 'ws://localhost:8787' : undefined
+)
 
 export function createSignalingTransport(
   roomId: string,

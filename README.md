@@ -16,6 +16,14 @@ npm install
 npm run dev
 ```
 
+`npm run dev` now starts both Vite and a local WebSocket signaling relay on `ws://localhost:8787`, so separate browsers on the same machine can join the same room during development.
+
+If you want to run the relay separately, use:
+
+```bash
+npm run signaling
+```
+
 ## Signaling
 
 Set `VITE_SIGNALING_URL` to a WebSocket endpoint that relays room messages between peers. The frontend stays static on GitHub Pages, but cross-device room matching still needs signaling.
